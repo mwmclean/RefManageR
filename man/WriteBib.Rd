@@ -49,18 +49,23 @@ To write the contents of \code{bib} \dQuote{as is}, the argument
 conversion is done as in \code{\link{toBibtex.BibEntry}}.
 }
 \examples{
-if (requireNamespace("bibtex"))
-    bib <- ReadCrossRef(query = '10.1080/01621459.2012.699793')
+if (requireNamespace("bibtex")){
+    bib <- BibEntry("Article", key = "Carroll_2012",
+                    doi = "10.1080/01621459.2012.699793",
+                    year = "2012", month = "sep",
+                    volume = 107, number = 499,
+                    pages = {1166--1177},
+      author = "R. Carroll and A. Delaigle and P. Hall",
+      title = "Deconvolution When Classifying Noisy Data ...",
+      journal = "Journal of the American Statistical Association")
 
-## Write bib if no server error and bibtex available
-if (length(bib)){
-  tfile <- tempfile(fileext = ".bib")
-  WriteBib(bib, tfile, biblatex = TRUE)
-
-  if (requireNamespace("bibtex"))
+  ## Write bib if no server error and bibtex available
+  if (length(bib)){
+    tfile <- tempfile(fileext = ".bib")
+    WriteBib(bib, tfile, biblatex = TRUE)
     identical(ReadBib(tfile), bib)
-
-  unlink(tfile)
+    unlink(tfile)
+  }
 }
 }
 \seealso{

@@ -33,9 +33,16 @@ arxiv2.fail <- try(download.file("https://arxiv.org/pdf/math/0703858",
                                  mode = "wb"))
 if (inherits(arxiv2.fail, "try-error"))
     arxiv2.fail <- TRUE
-biomet.fail <- try(download.file(paste0("http://biomet.oxfordjournals.org/",
+
+## First try to use pdfs stored in repo for use with CI/devtools
+##  The pdfs are ignored by.Rbuildignore,
+##   if they aren't found (i.e. if using R CMD check), try to download them
+biomet.fail <- !file.copy(system.file("pdf", "biometrikaEx.pdf",
+                                     package = "RefManageR"), exe.path)
+if (biomet.fail)
+    biomet.fail <- try(download.file(paste0("http://biomet.oxfordjournals.org/",
                                         "content/83/4/715.full.pdf"),
-                                 destfile = file.path(exe.path, "ADVb.pdf"),
+                                 destfile = file.path(exe.path, "biometrikaEx.pdf"),
                                  mode = "wb"))
 if (inherits(biomet.fail, "try-error"))
     biomet.fail <- TRUE
@@ -63,8 +70,12 @@ test_that("Creates a BibEntry object", {
     if (poppler.fail || all(jstor.fail, biomet.fail, arxiv1.fail, arxiv2.fail,
                             jss.fail))
         skip("Couldn't download Poppler or a single PDF")
-    bib <- ReadPDFs(exe.path, progress = TRUE, use.crossref = TRUE)
+    msgs <- capture_messages(bib <- ReadPDFs(exe.path, progress = TRUE,
+                                     use.crossref = TRUE))
     expect_is(bib, "BibEntry")
+    if (!biomet.fail)
+        expect_equal(as.character(bib[["azzalini1996multivariate"]]$author),
+                     c("A AZZALINI", "A DALLA VALLE"))
 })
 
 test_that("Add file field", {

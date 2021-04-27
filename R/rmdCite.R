@@ -42,7 +42,9 @@ AddCite <- function(index, use.hyper = TRUE){
 #'     NoCite(bib, title = "Alkanethiolate")
 #'     PrintBibliography(bib, .opts = list(style = "latex",
 #'                       bib.style = "authoryear"))
-#'
+#' }
+#' \dontrun{
+#'   if (requireNamespace("bibtex")){
 #'     Citep(bib, c("loh", "geer"), .opts = list(cite.style = "numeric"),
 #'           before = "see e.g., ")
 #'     Citet(bib, "loh", .opts = list(cite.style = "numeric", super = TRUE))
@@ -59,6 +61,7 @@ AddCite <- function(index, use.hyper = TRUE){
 #'     TextCite(bib, 33, .opts = list(bibpunct = punct, cite.style = "alphabetic"))
 #'
 #'     BibOptions(restore.defaults = TRUE)
+#'   }
 #' }
 #' \dontrun{
 #' library(knitr)
@@ -164,7 +167,7 @@ Cite <- function(bib, ..., textual = FALSE, before = NULL, after = NULL,
                                                    longnamesfirst)){
                 authors <- authors[seq_len(max.names)]
                 authors[length(authors)] <- paste0(authors[length(authors)],
-                                                   ", et al.")
+                                                   " et al.")
               }else{
                 if (length(authors) > 1L)
                   authors[length(authors)] <- paste("and",

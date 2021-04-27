@@ -340,7 +340,7 @@ GetAuthorTitle <- function(doc, found.abstract, kw){
   }
 
   BAD.WORDS <- paste0("\\bSupplement\\b|University|\\bCollege\\b|\\bCentre\\b",
-                      "|\\bCenter\\b|Working|Faculty|Paper|\\b[Uu][Rr][Ll]\\b",
+                      "|\\bCenter\\b|Working|^Printed in|Faculty|Paper|\\b[Uu][Rr][Ll]\\b",
                       "|Labs|\\bJournal\\b|Institute|\\bSchool\\b")
   if (length(match.ind)){  # if found author, assume title comes before author
     ind <- match.ind[1]
@@ -354,14 +354,15 @@ GetAuthorTitle <- function(doc, found.abstract, kw){
   first.match <- FALSE
   done.match <- FALSE
   while (i <= N && !done.match){
-    temp <- grep(BAD.WORDS, doc[i], ignore.case = TRUE, useBytes = TRUE)
-    title.ind <- regexpr(paste0(  # "(?!", BAD.WORDS, ")",
+    likely.non.title.term.found <- grepl(BAD.WORDS, doc[i], ignore.case = TRUE,
+                                           useBytes = TRUE)
+    title.ind <- (regexpr(paste0(  # "(?!", BAD.WORDS, ")",
                 "^[\u201c\u022]?[[:upper:]][[:alpha:]'\u201c\u201d\u022-]+[ -]",
                 #"([[:alpha:]:,' ]){2,}(\\.|!|\\?)?$"),
-                "([[:alpha:]:,' \u201c\u201d\u022-]+){2,}.?$"),
+                "([[:alpha:]:,' \u201c\u201d\u022-]+){2,}"),
                 #"(?<!", BAD.WORDS, ")"),
-                       doc[i], perl = TRUE, useBytes = TRUE)
-    if (title.ind != -1 && !length(temp)){
+                       doc[i], perl = TRUE, useBytes = TRUE))
+    if (title.ind != -1 && !likely.non.title.term.found){
       if (!first.match){
         first.match <- TRUE
         title.match <- regmatches(doc[i], title.ind)
@@ -409,7 +410,7 @@ CleanAuthorTitle <- function(bib1, bib2, bibMeta, file){
     if (!is.null(bib1$year) || !is.null(bib2$year))
       bibMeta$date <- NULL
   }
-  if (bib2$found.abstract && (!is.null(bib2$author) || !is.null(bib2$title))){
+    if (bib2$found.abstract && (!is.null(bib2$author) || !is.null(bib2$title))){
     if(!is.null(bibMeta))
       bib1 <- AddListToList(bib1, bibMeta)
     bib <- AddListToList(bib2, bib1)
